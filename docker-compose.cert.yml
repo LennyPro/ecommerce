@@ -1,0 +1,88 @@
+version: "3.9"
+
+services:
+  web:
+    image: lennyprocolibri/django-web:latest
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn e_commerce_project.wsgi:application --bind 0.0.0.0:8000"
+    expose:
+      - "8000"
+    environment:
+      - VIRTUAL_HOST=lennypro.com
+      - LETSENCRYPT_HOST=lennypro.com
+      - LETSENCRYPT_EMAIL=colibrifestivalca@gmail.com
+    env_file:
+      - .env
+    volumes:
+      - static:/app/static
+      - media:/app/media
+    restart: unless-stopped
+    networks:
+      - webnet
+    depends_on:
+      - nginx-proxy
+      - letsencrypt
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - nginx_certs:/etc/nginx/certs
+      - nginx_vhost:/etc/nginx/vhost.d
+      - nginx_html:/usr/share/nginx/html
+    restart: unless-stopped
+    networks:
+      - webnet
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-letsencrypt
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx_proxy
+      - DEFAULT_EMAIL=colibrifestivalca@gmail.com
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+#      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - nginx_certs:/etc/nginx/certs
+      - nginx_vhost:/etc/nginx/vhost.d
+      - nginx_html:/usr/share/nginx/html
+    restart: unless-stopped
+    networks:
+      - webnet
+
+  worker:
+    image: lennyprocolibri/django-web:latest
+    command: celery -A e_commerce_project worker --loglevel=info --concurrency=3 --hostname=worker@%h
+    volumes:
+      - static:/app/static
+      - media:/app/media
+    env_file:
+      - .env
+    depends_on:
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - webnet
+
+  redis:
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    networks:
+      - webnet
+
+volumes:
+  static:
+  media:
+  nginx_certs:
+  nginx_vhost:
+  nginx_html:
+
+networks:
+  webnet:

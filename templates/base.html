@@ -1,0 +1,33 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %} base.html {% endblock %}</title>
+{#    <link rel="stylesheet" href="{% static 'css/styles.css' %}">#}
+</head>
+
+<body>
+
+<div id="header">
+    <a href="{% url 'inventory:product_list' %}" class="logo'">Burgers & Pizza Shop</a>
+</div>
+
+<div id="subheader">
+    <div class="cart">
+        {% with total=cart|length %}
+            Cart: <a href="{% url "cart:cart_detail" %}">{{ total }} items</a>
+        {% endwith %}
+    </div>
+</div>
+
+<div id="content">
+    {% block content %}  {% endblock %}
+</div>
+
+<footer><p>&copy; "Burger & Pizza Shop" since 2024</p></footer>
+</body>
+
+</html>

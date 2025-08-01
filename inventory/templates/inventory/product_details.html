@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} product_details.html {% endblock %}
+
+{% block content %}
+
+    <div class="product-details">
+
+        <img
+                style="width: 150px; height: 150px; object-fit: cover;"
+                src="{% if product.image %}
+                    {{ product.image.url }}
+                {% else %}
+                    {% static "img/no_image.png" %}
+                {% endif %}"
+
+                alt="#"
+        >
+
+        <h1>{{ product.name }}</h1>
+        <h2>{{ product.category }}</h2>
+        <p class="price"> cost of item is ${{ product.price }} </p>
+        <p>{{ product.description|linebreaks }}</p>
+    </div>
+
+    <hr>
+    <form action="{% url "cart:cart_add" product.id %}" method="post">
+        {{ cart_product_form }}
+        {% csrf_token %}
+        <input type="submit" value="add to cart">
+    </form>
+
+{#    <hr>#}
+{#    {% include 'cart/cart_details.html' %}#}
+{#    <hr>#}
+
+{% endblock %}
