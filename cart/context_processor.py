@@ -8,10 +8,10 @@ def cart(request):
 
 
 '''
-This function is meant to be used as a "context processor" in a Django project. 
 To use it as a context processor, 
-you would add it to the context_processors option in your Django settings file, 
+you would add it to the "context_processors" option in your Django "settings" file, 
 typically found in the TEMPLATES setting.
+
 
 settings.py:
 

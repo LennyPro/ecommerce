@@ -21,6 +21,7 @@ app.autodiscover_tasks()
 ''' In summary, this script sets up and configures a Celery instance for a Django project, 
 allowing it to handle asynchronous tasks and periodic scheduling.
 
+
 if using RabbitMQ:
 rabbitmq login on host 15672
 http://localhost:15672/ '''

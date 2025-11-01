@@ -1,34 +1,31 @@
-# Use official Python image based on Debian Bullseye for better package support
-FROM python:3.11-bullseye
+FROM python:3.10-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+# Prevent Python from writing .pyc files and buffer stdout/stderr
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Set working directory
+# Set work directory
 WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    ca-certificates \
-    curl \
-    netcat-openbsd && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+        gcc \
+        python3-dev \
+        libpq-dev \
+        curl \
+        && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+RUN pip install --upgrade pip
+
+# Copy requirements first to leverage Docker cache
 COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
 COPY . .
 
-# Create static and media directories
-RUN mkdir -p /app/static /app/media
+RUN python manage.py collectstatic --noinput
 
-# Default command to run Gunicorn
-CMD ["gunicorn", "e_commerce_project.wsgi:application", "--bind", "0.0.0.0:8000"]
+EXPOSE 8000
+
+CMD ["gunicorn", "blogPost.wsgi:application", "--bind", "0.0.0.0:8000"]

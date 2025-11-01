@@ -1,0 +1,19 @@
+# Virtual environments
+.env
+.venv
+
+# Django collected static files (should be generated, not stored)
+staticfiles/
+static/
+media/
+
+# Django DB (if using SQLite in development)
+db.sqlite3
+
+# VSCode & PyCharm IDE settings
+.vscode/
+.idea/
+
+# System
+.DS_Store
+Thumbs.dbstaticfiles/
